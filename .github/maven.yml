@@ -1,0 +1,54 @@
+name: Java CI/CD with Maven
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_HUB_USER: devopsgoofy
+      DOCKER_IMAGE_NAME: maven-proj
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Increment version
+        id: increment_version
+        uses: crazy-max/semver-action@v1
+        with:
+          tag: 'patch'
+          file: 'pom.xml'
+          version-file: 'pom.xml'
+          commit-message: 'Increment patch version'
+          
+      - name: Get version
+        id: get_version
+        run: |
+          VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" pom.xml)
+          echo "New version: $VERSION"
+          echo "::set-output name=version::$VERSION"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and Publish Docker image
+        uses: docker/build-push-action@23c657a01f105567f668c7596ce8e5a038da2555 # V6.7.0
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.get_version.outputs.version }}
+          build-args: |
+            JAR_VERSION=${{ steps.get_version.outputs.version }}
+          push: true
+
+      - name: Run Docker container
+        run: |
+          docker run --rm ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.get_version.outputs.version }}
