@@ -47,3 +47,11 @@ jobs:
       - name: Run Docker container
         run: |
           docker run --rm ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.new_version }}
+          
+      - name: Push changes back to repo
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Actions"
+          git add .
+          git commit -m "Workflow complete. Changed version to ${{ env.new_version }} [skip ci]"
+          git push origin master
