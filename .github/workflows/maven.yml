@@ -20,13 +20,14 @@ jobs:
       - name: Increment version
         id: increment_version
         run: |
-          CURRENT_VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" pom.xml)
-          echo "current_version=$CURRENT_VERSION" >> $GITHUB_ENV
-          IFS='-' read -r version snapshot <<< "$CURRENT_VERSION"
-          IFS='.' read -r major minor patch <<< "$version"
+          VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" pom.xml)
+          echo "Current version: $VERSION"
+          IFS='.' read major minor patch <<< "$VERSION"
           new_patch=$((patch + 1))
           new_version="$major.$minor.$new_patch-SNAPSHOT"
+          echo "New version: $new_version"
           echo "new_version=$new_version" >> $GITHUB_ENV
+          sed -i "s/<version>.*<\/version>/<version>$new_version<\/version>/" pom.xml
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
