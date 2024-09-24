@@ -18,21 +18,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Increment version
-        id: versioning
-        uses: oss-actions/auto-semver@v0.1.11
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          repository: ${{ github.repository }}
-          type: patch
-          
-      - name: Print previous and next semver version
-        if: github.ref != steps.versioning.outputs.previous_version_ref
-        env:
-          NEXT_VERSION: ${{ steps.versioning.outputs.version }}
-          PREVIOUS_VERSION: ${{ steps.versioning.outputs.previous_version }}
+        id: increment_version
         run: |
-          echo "Previous version is $PREVIOUS_VERSION"
-          echo "Next version is $NEXT_VERSION"
+          CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_ENV
+          IFS='-' read -r version snapshot <<< "${{ env.current_version }}"
+          IFS='.' read -r major minor patch <<< "$version"
+          new_patch=$((patch + 1))
+          new_version="$major.$minor.$new_patch-SNAPSHOT"
+          echo "new_version=$new_version" >> $GITHUB_ENV
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -45,11 +39,11 @@ jobs:
         with:
           context: .
           file: Dockerfile
-          tags: ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.versioning.outputs.version }}
+          tags: ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.new_version }}
           build-args: |
-            JAR_VERSION=${{ steps.versioning.outputs.version }}
+            JAR_VERSION=${{ env.new_version }}
           push: true
 
       - name: Run Docker container
         run: |
-          docker run --rm ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.versioning.outputs.version }}
+          docker run --rm ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.new_version }}
