@@ -19,12 +19,10 @@ jobs:
 
       - name: Increment version
         id: increment_version
-        uses: crazy-max/semver-action@v1
+        uses: huggingface/semver-release-action@latest
         with:
           tag: 'patch'
           file: 'pom.xml'
-          version-file: 'pom.xml'
-          commit-message: 'Increment patch version'
           
       - name: Get version
         id: get_version
