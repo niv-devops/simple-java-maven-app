@@ -4,14 +4,14 @@
   <groupId>com.mycompany.app</groupId>
   <artifactId>my-app</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <name>my-app</name>
   <url>https://maven.apache.org</url>
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>5.11.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -24,7 +24,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>1.0.1-SNAPSHOT</version>
+          <version>3.13.0</version>
           <configuration>
             <release>17</release>
           </configuration>
@@ -36,7 +36,7 @@
         <!-- Build an executable JAR -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>3.4.2</version>
         <configuration>
           <archive>
             <manifest>
@@ -50,7 +50,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <id>enforce-maven</id>
@@ -60,10 +60,10 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>1.0.1-SNAPSHOT</version>
+                  <version>[3.9.2,)</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
-                  <version>1.0.1-SNAPSHOT</version>
+                  <version>[17,)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
