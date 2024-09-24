@@ -20,9 +20,9 @@ jobs:
       - name: Increment version
         id: increment_version
         run: |
-          CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          CURRENT_VERSION=$(grep -oPm1 "(?<=<version>)[^<]+" pom.xml)
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_ENV
-          IFS='-' read -r version snapshot <<< "${{ env.current_version }}"
+          IFS='-' read -r version snapshot <<< "$CURRENT_VERSION"
           IFS='.' read -r major minor patch <<< "$version"
           new_patch=$((patch + 1))
           new_version="$major.$minor.$new_patch-SNAPSHOT"
